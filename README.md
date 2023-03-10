@@ -1,4 +1,4 @@
-# MonitorPetDosador.Functions
+# MonitorPet.Functions
 Auxilia conexões BD através de protocólos HTTP.
 
 Utiliza Azure Functions
