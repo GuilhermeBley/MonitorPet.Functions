@@ -10,9 +10,9 @@ using Newtonsoft.Json;
 
 namespace MonitorPet.Functions
 {
-    public static class Function1
+    public static class AddWeightFunction
     {
-        [FunctionName("Function1")]
+        [FunctionName("AddWeightFunction")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
             ILogger log)
@@ -31,6 +31,12 @@ namespace MonitorPet.Functions
                 : $"Hello, {name}. This HTTP triggered function executed successfully.";
 
             return new OkObjectResult(responseMessage);
+        }
+
+        private class WeightDosador
+        {
+            private Guid IdDosador { get; set; }
+
         }
     }
 }
