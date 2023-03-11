@@ -17,6 +17,7 @@ namespace MonitorPet.Functions
             [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
             ILogger log)
         {
+            var value = System.Environment.GetEnvironmentVariable("MySqlConnection");
             log.LogInformation("C# HTTP trigger function processed a request.");
 
             string name = req.Query["name"];
