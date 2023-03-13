@@ -19,6 +19,9 @@ namespace MonitorPet.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "AddWeightFunction")] HttpRequest req,
             ILogger log)
         {
+            if (IsValidAccessToken(req.Query[DEFAULT_QUERY_ACCESS_TOKEN]))
+                return new UnauthorizedResult();
+
             var modelWeightDosador = await CreateByBody(req.Body);
 
             if (modelWeightDosador is null)
