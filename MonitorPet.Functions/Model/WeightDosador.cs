@@ -6,7 +6,7 @@ namespace MonitorPet.Functions.Model
     {
         public Guid IdDosador { get; set; }
         public double Weight { get; set; }
-        public DateTime CreateAt { get; set; }
+        public DateTime? CreateAt { get; set; }
     }
     
 }
