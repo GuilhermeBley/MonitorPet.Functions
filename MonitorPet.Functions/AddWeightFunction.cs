@@ -19,15 +19,12 @@ namespace MonitorPet.Functions
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = "AddWeightFunction")] HttpRequest req,
             ILogger log)
         {
-            if (!IsValidAccessToken(req.Query[DEFAULT_QUERY_ACCESS_TOKEN]))
-                return new UnauthorizedResult();
+            var modelWeightDosador = await CreateByBody(req.Body);
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var modelWeightDosador = JsonConvert.DeserializeObject<Model.WeightDosador>(requestBody);
+            if (modelWeightDosador is null)
+                return new BadRequestObjectResult("Invalid model");
 
             var repositoryWeight = CreateRepositoryWithConnection();
-
-            modelWeightDosador.CreateAt = System.DateTime.Now;
 
             await repositoryWeight.Create(modelWeightDosador);
 
@@ -37,12 +34,12 @@ namespace MonitorPet.Functions
         private static Repository.PesoRepository CreateRepositoryWithConnection()
             => new Repository.PesoRepository(
                 new MySqlConnection.ConnectionFactory(
-                    System.Environment.GetEnvironmentVariable(DEFAULT_MYSQL_CONFIG))
+                    TryGetSettings(DEFAULT_MYSQL_CONFIG))
             );
 
         private static bool IsValidAccessToken(string token)
         {
-            var tokenSideByServer = System.Environment.GetEnvironmentVariable(DEFAULT_QUERY_ACCESS_TOKEN);
+            var tokenSideByServer = TryGetSettings(DEFAULT_QUERY_ACCESS_TOKEN);
 
             if (string.IsNullOrEmpty(tokenSideByServer )||
                 string.IsNullOrEmpty(token) ||
@@ -50,6 +47,31 @@ namespace MonitorPet.Functions
                 return false;
             
             return true;
+        }
+    
+        private static async Task<Model.WeightDosador> CreateByBody(Stream body)
+        {
+            string requestBody = await new StreamReader(body).ReadToEndAsync();
+            var modelWeightDosador = JsonConvert.DeserializeObject<Model.WeightDosador>(requestBody);
+
+            if (modelWeightDosador is null)
+                return null;
+
+            modelWeightDosador.CreateAt = System.DateTime.Now;
+
+            return modelWeightDosador;
+        }
+    
+        private static string TryGetSettings(string key)
+        {
+            try
+            {
+                return System.Environment.GetEnvironmentVariable(key) ?? string.Empty;
+            }
+            catch
+            {
+                return string.Empty;
+            }
         }
     }
 }
