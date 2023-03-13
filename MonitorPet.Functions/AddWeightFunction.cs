@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace MonitorPet.Functions
 {
-    public static class AddWeightFunction
+    public static partial class AddWeightFunction
     {
         [FunctionName("AddWeightFunction")]
         public static async Task<IActionResult> Run(
@@ -31,12 +30,6 @@ namespace MonitorPet.Functions
                 : $"Hello, {name}. This HTTP triggered function executed successfully.";
 
             return new OkObjectResult(responseMessage);
-        }
-
-        private class WeightDosador
-        {
-            private Guid IdDosador { get; set; }
-
         }
     }
 }
