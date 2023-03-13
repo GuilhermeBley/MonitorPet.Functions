@@ -16,7 +16,7 @@ namespace MonitorPet.Functions
 
         [FunctionName("AddWeightFunction")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "AddWeightFunction")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "AddWeightFunction")] HttpRequest req,
             ILogger log)
         {
             var modelWeightDosador = await CreateByBody(req.Body);
