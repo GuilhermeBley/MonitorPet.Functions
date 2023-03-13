@@ -13,23 +13,26 @@ namespace MonitorPet.Functions
     {
         [FunctionName("AddWeightFunction")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "post", Route = "AddWeightFunction")] HttpRequest req,
             ILogger log)
         {
             var value = System.Environment.GetEnvironmentVariable("MySqlConnection");
-            log.LogInformation("C# HTTP trigger function processed a request.");
-
-            string name = req.Query["name"];
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            name = name ?? data?.name;
+            var modelWeightDosador = JsonConvert.DeserializeObject<Model.WeightDosador>(requestBody);
 
-            string responseMessage = string.IsNullOrEmpty(name)
-                ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
-                : $"Hello, {name}. This HTTP triggered function executed successfully.";
+            var repositoryWeight = CreateRepositoryWithConnection(value);
 
-            return new OkObjectResult(responseMessage);
+            modelWeightDosador.CreateAt = System.DateTime.Now;
+
+            await repositoryWeight.Create(modelWeightDosador);
+
+            return new CreatedResult("Peso", modelWeightDosador);
         }
+
+        private static Repository.PesoRepository CreateRepositoryWithConnection(string conn)
+            => new Repository.PesoRepository(
+                new MySqlConnection.ConnectionFactory(conn)
+            );
     }
 }
