@@ -37,12 +37,12 @@ namespace MonitorPet.Functions
         private static Repository.PesoRepository CreateRepositoryWithConnection()
             => new Repository.PesoRepository(
                 new MySqlConnection.ConnectionFactory(
-                    TryGetSettings(DEFAULT_MYSQL_CONFIG))
+                    Settings.AppSettings.TryGetSettings(DEFAULT_MYSQL_CONFIG))
             );
 
         private static bool IsValidAccessToken(string token)
         {
-            var tokenSideByServer = TryGetSettings(DEFAULT_QUERY_ACCESS_TOKEN);
+            var tokenSideByServer = Settings.AppSettings.TryGetSettings(DEFAULT_QUERY_ACCESS_TOKEN);
 
             if (string.IsNullOrEmpty(tokenSideByServer )||
                 string.IsNullOrEmpty(token) ||
@@ -63,18 +63,6 @@ namespace MonitorPet.Functions
             modelWeightDosador.CreateAt = System.DateTime.Now;
 
             return modelWeightDosador;
-        }
-    
-        private static string TryGetSettings(string key)
-        {
-            try
-            {
-                return System.Environment.GetEnvironmentVariable(key) ?? string.Empty;
-            }
-            catch
-            {
-                return string.Empty;
-            }
         }
     }
 }
