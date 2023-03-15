@@ -4,6 +4,11 @@ using MonitorPet.Functions.MySqlConnection;
 
 namespace MonitorPet.Functions.Repository;
 
+internal interface IPesoRepository
+{
+    Task Create(Model.WeightDosador model);
+}
+
 internal class PesoRepository : IPesoRepository
 {
     private readonly ConnectionFactory _connectionFactory;

@@ -6,20 +6,22 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using MonitorPet.Functions.Settings;
+using MonitorPet.Functions.Security;
 
 namespace MonitorPet.Functions
 {
     public static partial class AddWeightFunction
     {
-        private const string DEFAULT_QUERY_ACCESS_TOKEN = "KeyAccessApi";
-        private const string DEFAULT_MYSQL_CONFIG = "MySqlConnection";
+        private static TokenAccess TokenServer { get; } = 
+            new TokenAccess(AppSettings.TryGetSettings(AppSettings.DEFAULT_QUERY_ACCESS_TOKEN));
 
         [FunctionName("AddWeightFunction")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "AddWeightFunction")] HttpRequest req,
             ILogger log)
         {
-            if (!IsValidAccessToken(req.Query[DEFAULT_QUERY_ACCESS_TOKEN]))
+            if (!TokenServer.IsValidAccessToken(req.Query[AppSettings.DEFAULT_QUERY_ACCESS_TOKEN]))
                 return new UnauthorizedResult();
 
             var modelWeightDosador = await CreateByBody(req.Body);
@@ -37,20 +39,8 @@ namespace MonitorPet.Functions
         private static Repository.PesoRepository CreateRepositoryWithConnection()
             => new Repository.PesoRepository(
                 new MySqlConnection.ConnectionFactory(
-                    TryGetSettings(DEFAULT_MYSQL_CONFIG))
+                    AppSettings.TryGetSettings(AppSettings.DEFAULT_MYSQL_CONFIG))
             );
-
-        private static bool IsValidAccessToken(string token)
-        {
-            var tokenSideByServer = TryGetSettings(DEFAULT_QUERY_ACCESS_TOKEN);
-
-            if (string.IsNullOrEmpty(tokenSideByServer )||
-                string.IsNullOrEmpty(token) ||
-                tokenSideByServer != token)
-                return false;
-            
-            return true;
-        }
     
         private static async Task<Model.WeightDosador> CreateByBody(Stream body)
         {
@@ -63,18 +53,6 @@ namespace MonitorPet.Functions
             modelWeightDosador.CreateAt = System.DateTime.Now;
 
             return modelWeightDosador;
-        }
-    
-        private static string TryGetSettings(string key)
-        {
-            try
-            {
-                return System.Environment.GetEnvironmentVariable(key) ?? string.Empty;
-            }
-            catch
-            {
-                return string.Empty;
-            }
         }
     }
 }
