@@ -14,8 +14,8 @@ internal class TokenAccess
         var tokenSideByServer = _tokenSideByServer;
 
         if (string.IsNullOrEmpty(tokenSideByServer) ||
-            string.IsNullOrEmpty(token) ||
-            tokenSideByServer != token)
+            string.IsNullOrEmpty(tokenToCheck) ||
+            tokenSideByServer != tokenToCheck)
             return false;
 
         return true;
