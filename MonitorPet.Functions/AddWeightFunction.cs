@@ -7,17 +7,21 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using MonitorPet.Functions.Settings;
+using MonitorPet.Functions.Security;
 
 namespace MonitorPet.Functions
 {
     public static partial class AddWeightFunction
     {
+        private static TokenAccess TokenServer { get; } = 
+            new TokenAccess(AppSettings.TryGetSettings(AppSettings.DEFAULT_QUERY_ACCESS_TOKEN));
+
         [FunctionName("AddWeightFunction")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "AddWeightFunction")] HttpRequest req,
             ILogger log)
         {
-            if (!IsValidAccessToken(req.Query[AppSettings.DEFAULT_QUERY_ACCESS_TOKEN]))
+            if (!TokenServer.IsValidAccessToken(req.Query[AppSettings.DEFAULT_QUERY_ACCESS_TOKEN]))
                 return new UnauthorizedResult();
 
             var modelWeightDosador = await CreateByBody(req.Body);
@@ -37,18 +41,6 @@ namespace MonitorPet.Functions
                 new MySqlConnection.ConnectionFactory(
                     AppSettings.TryGetSettings(AppSettings.DEFAULT_MYSQL_CONFIG))
             );
-
-        private static bool IsValidAccessToken(string token)
-        {
-            var tokenSideByServer = AppSettings.TryGetSettings(AppSettings.DEFAULT_QUERY_ACCESS_TOKEN);
-
-            if (string.IsNullOrEmpty(tokenSideByServer )||
-                string.IsNullOrEmpty(token) ||
-                tokenSideByServer != token)
-                return false;
-            
-            return true;
-        }
     
         private static async Task<Model.WeightDosador> CreateByBody(Stream body)
         {
