@@ -31,19 +31,24 @@ namespace MonitorPet.Functions
                 !Guid.TryParse(paramIdDosador, out Guid generatedGuid))
                 return new BadRequestObjectResult("Param 'IdDosador' is invalid.");
 
-            var scheduleRepository = CreateRepositoryWithConnection();
+            var tupleRep = CreateRepositoryWithConnection();
 
-            var schedules = await scheduleRepository.GetSchedulesFromDosador(generatedGuid.ToString());
+            await tupleRep.DosadorRep.UpdateLastRefresh(DateTime.UtcNow);
+            var schedules = await tupleRep.ScheduleRep.GetSchedulesFromDosador(generatedGuid.ToString());
 
             return new OkObjectResult(
                 schedules.ToArray()
             );
         }
 
-        private static Repository.IScheduleRepository CreateRepositoryWithConnection()
-            => new Repository.ScheduleRepository(
+        private static (Repository.IScheduleRepository ScheduleRep, Repository.IDosadorRepository DosadorRep) CreateRepositoryWithConnection()
+        {
+            var connection =
                 new MySqlConnection.ConnectionFactory(
-                    AppSettings.TryGetSettings(AppSettings.DEFAULT_MYSQL_CONFIG))
-            );
+                    AppSettings.TryGetSettings(AppSettings.DEFAULT_MYSQL_CONFIG));
+            var scheduleRep = new Repository.ScheduleRepository(connection);
+            var dosadorRep = new Repository.DosadorRepository(connection);
+            return (scheduleRep, dosadorRep);
+        }
     }
 }
