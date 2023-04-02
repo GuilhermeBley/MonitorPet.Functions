@@ -9,7 +9,7 @@ Adiciona peso para base de dados
 
 ## Get Schedules
 
-Coleta agendamentos do dosador
+Coleta agendamentos do dosador e realiza atualização de status do dosador
 
 
 ## Monitor Pet
