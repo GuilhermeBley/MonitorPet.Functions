@@ -8,6 +8,8 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using MonitorPet.Functions.Settings;
 using MonitorPet.Functions.Security;
+using System;
+using MonitorPet.Functions.Repository;
 
 namespace MonitorPet.Functions
 {
@@ -21,26 +23,31 @@ namespace MonitorPet.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "AddWeightFunction")] HttpRequest req,
             ILogger log)
         {
-            if (!TokenServer.IsValidAccessToken(req.Query[AppSettings.DEFAULT_QUERY_ACCESS_TOKEN]))
-                return new UnauthorizedResult();
+            try
+            {
+                if (!TokenServer.IsValidAccessToken(req.Query[AppSettings.DEFAULT_QUERY_ACCESS_TOKEN]))
+                    return new UnauthorizedResult();
 
-            var modelWeightDosador = await CreateByBody(req.Body);
+                var modelWeightDosador = await CreateByBody(req.Body);
 
-            if (modelWeightDosador is null)
-                return new BadRequestObjectResult("Invalid model");
+                if (modelWeightDosador is null)
+                    return new BadRequestObjectResult("Invalid model");
 
-            var repositoryWeight = CreateRepositoryWithConnection();
+                using var context = MpContextDb.Create();
 
-            await repositoryWeight.Create(modelWeightDosador);
+                await context.OpenConnectionAsync();
 
-            return new CreatedResult("Peso", modelWeightDosador);
+                await context.PesoRepository.Create(modelWeightDosador);
+
+                return new CreatedResult("Peso", modelWeightDosador);
+            }
+            catch (Exception e)
+            {
+                log.LogError(e, "Failed");
+
+                throw;
+            }
         }
-
-        private static Repository.PesoRepository CreateRepositoryWithConnection()
-            => new Repository.PesoRepository(
-                new MySqlConnection.ConnectionFactory(
-                    AppSettings.TryGetSettings(AppSettings.DEFAULT_MYSQL_CONFIG))
-            );
     
         private static async Task<Model.WeightDosador> CreateByBody(Stream body)
         {
@@ -50,7 +57,7 @@ namespace MonitorPet.Functions
             if (modelWeightDosador is null)
                 return null;
 
-            modelWeightDosador.CreateAt = System.DateTime.Now;
+            modelWeightDosador.CreateAt = System.DateTime.UtcNow;
 
             return modelWeightDosador;
         }
