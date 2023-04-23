@@ -1,13 +1,13 @@
 using System;
 using System.Threading.Tasks;
-using MonitorPet.Functions.Model;
+using Dapper;
 using MonitorPet.Functions.MySqlConnection;
 
 namespace MonitorPet.Functions.Repository;
 
 internal interface IDosadorRepository
 {
-    Task UpdateLastRefresh(DateTime timeUtc);
+    Task UpdateLastRefresh(Guid idDosador, DateTime timeUtc);
 }
 
 internal class DosadorRepository : IDosadorRepository
@@ -19,8 +19,11 @@ internal class DosadorRepository : IDosadorRepository
         _connectionFactory = connectionFactory;
     }
 
-    public async Task UpdateLastRefresh(DateTime titimeUtcme)
+    public async Task UpdateLastRefresh(Guid idDosador, DateTime timeUtc)
     {
-        await Task.CompletedTask;
+        var connection = await _connectionFactory.CreateOpenConnection();
+
+        await connection.ExecuteAsync(@"UPDATE monitorpet.dosador SET UltimaAtualizacao = @UltimaAtualizacao WHERE (IdDosador = @IdDosador);",
+            new { UltimaAtualizacao = timeUtc, IdDosador = idDosador });
     }
 }

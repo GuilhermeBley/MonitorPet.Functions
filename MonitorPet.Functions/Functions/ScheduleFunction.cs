@@ -1,5 +1,5 @@
 using System;
-using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -9,6 +9,9 @@ using Microsoft.Extensions.Logging;
 using System.Linq;
 using MonitorPet.Functions.Settings;
 using MonitorPet.Functions.Security;
+using MonitorPet.Functions.MySqlConnection;
+using MonitorPet.Functions.Repository;
+using MonitorPet.Functions.Model;
 
 namespace MonitorPet.Functions
 {
@@ -22,33 +25,36 @@ namespace MonitorPet.Functions
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ScheduleFunction")] HttpRequest req,
             ILogger log)
         {
-            if (!TokenServer.IsValidAccessToken(req.Query[AppSettings.DEFAULT_QUERY_ACCESS_TOKEN]))
-                return new UnauthorizedResult();
+            try
+            {
+                if (!TokenServer.IsValidAccessToken(req.Query[AppSettings.DEFAULT_QUERY_ACCESS_TOKEN]))
+                    return new UnauthorizedResult();
 
-            var paramIdDosador = req.Query["IdDosador"];
+                var paramIdDosador = req.Query["IdDosador"];
 
-            if (string.IsNullOrEmpty(paramIdDosador) ||
-                !Guid.TryParse(paramIdDosador, out Guid generatedGuid))
-                return new BadRequestObjectResult("Param 'IdDosador' is invalid.");
+                if (string.IsNullOrEmpty(paramIdDosador) ||
+                    !Guid.TryParse(paramIdDosador, out Guid generatedGuid))
+                    return new BadRequestObjectResult("Param 'IdDosador' is invalid.");
 
-            var tupleRep = CreateRepositoryWithConnection();
+                using var context = MpContextDb.Create();
 
-            await tupleRep.DosadorRep.UpdateLastRefresh(DateTime.UtcNow);
-            var schedules = await tupleRep.ScheduleRep.GetSchedulesFromDosador(generatedGuid.ToString());
+                await context.OpenConnectionAsync();
 
-            return new OkObjectResult(
-                schedules.ToArray()
-            );
-        }
+                await context.DosadorRepository.UpdateLastRefresh(generatedGuid, DateTime.UtcNow);
+                var schedules = await context.ScheduleRepository.GetSchedulesFromDosador(generatedGuid.ToString());
 
-        private static (Repository.IScheduleRepository ScheduleRep, Repository.IDosadorRepository DosadorRep) CreateRepositoryWithConnection()
-        {
-            var connection =
-                new MySqlConnection.ConnectionFactory(
-                    AppSettings.TryGetSettings(AppSettings.DEFAULT_MYSQL_CONFIG));
-            var scheduleRep = new Repository.ScheduleRepository(connection);
-            var dosadorRep = new Repository.DosadorRepository(connection);
-            return (scheduleRep, dosadorRep);
+                var model = new ReturnScheduleModel { LastRelease = null, Schedules = schedules.Where(s => s.Activeted).ToArray() };
+
+                return new OkObjectResult(
+                    model
+                );
+            }
+            catch (Exception e)
+            {
+                log.LogError(e, "Failed");
+
+                throw;
+            }
         }
     }
 }
