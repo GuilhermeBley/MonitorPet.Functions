@@ -9,6 +9,6 @@ internal class ScheduleModel
     public int DayOfWeek { get; set; }
     public TimeSpan ScheduledDate { get; set; }
     public double Quantity { get; set; }
-    public bool Activeted { get; set; }
+    public bool Activated { get; set; }
 }
 

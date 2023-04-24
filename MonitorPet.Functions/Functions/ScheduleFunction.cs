@@ -43,7 +43,7 @@ namespace MonitorPet.Functions
                 await context.DosadorRepository.UpdateLastRefresh(generatedGuid, DateTime.UtcNow);
                 var schedules = await context.ScheduleRepository.GetSchedulesFromDosador(generatedGuid.ToString());
 
-                var model = new ReturnScheduleModel { LastRelease = null, Schedules = schedules.Where(s => s.Activeted).ToArray() };
+                var model = new ReturnScheduleModel { LastRelease = null, Schedules = schedules.Where(s => s.Activated).ToArray() };
 
                 return new OkObjectResult(
                     model

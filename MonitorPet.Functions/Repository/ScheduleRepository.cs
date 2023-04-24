@@ -32,7 +32,7 @@ internal class ScheduleRepository : IScheduleRepository
                     DiaSemana DayOfWeek,
                     HoraAgendada ScheduledDate,
                     QtdeLiberadaGr Quantity,
-                    Ativado Activeted
+                    Ativado Activated
                 FROM monitorpet.agendamento
                 WHERE IdDosador = @IdDosador; ",
                 new { IdDosador = idDosador }
