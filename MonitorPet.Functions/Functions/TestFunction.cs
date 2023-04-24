@@ -25,8 +25,10 @@ namespace MonitorPet.Functions.Functions
             if (!TokenServer.IsValidAccessToken(req.Query[AppSettings.DEFAULT_QUERY_ACCESS_TOKEN]))
                 return new UnauthorizedResult();
 
+            await Task.CompletedTask;
+
             return new OkObjectResult(
-                AppSettings.TryGetSettings(AppSettings.DEFAULT_MYSQL_CONFIG).ToCharArray().Take(5)
+                req.Host
             );
         }
     }
