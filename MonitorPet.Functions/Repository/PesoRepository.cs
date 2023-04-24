@@ -1,6 +1,8 @@
+using Dapper;
 using System.Threading.Tasks;
 using MonitorPet.Functions.Model;
 using MonitorPet.Functions.MySqlConnection;
+using System;
 
 namespace MonitorPet.Functions.Repository;
 
@@ -20,6 +22,12 @@ internal class PesoRepository : IPesoRepository
 
     public async Task Create(WeightDosador model)
     {
-        await Task.CompletedTask;
+        var connection = await _connectionFactory.CreateOpenConnection();
+
+        await connection
+            .ExecuteAsync(
+                @"INSERT INTO monitorpet.historicopeso (IdDosador, PesoGr, DateAt) VALUES (@IdDosador, @PesoGr, @DateAt);",
+                new { IdDosador = model.IdDosador, PesoGr = model.Weight, DateAt = model.CreateAt }
+            );
     }
 }
