@@ -39,11 +39,15 @@ namespace MonitorPet.Functions
                 using var context = MpContextDb.Create();
 
                 await context.OpenConnectionAsync();
-
-                await context.DosadorRepository.UpdateLastRefresh(generatedGuid, DateTime.UtcNow);
+                
+                var lastRelease = await context.DosadorRepository.GetLastRefresh(generatedGuid);
+                
+                if (lastRelease is not null)
+                    await context.DosadorRepository.UpdateLastRefresh(generatedGuid, DateTime.UtcNow);
+                
                 var schedules = await context.ScheduleRepository.GetSchedulesFromDosador(generatedGuid.ToString());
 
-                var model = new ReturnScheduleModel { LastRelease = null, Schedules = schedules.Where(s => s.Activated).ToArray() };
+                var model = new ReturnScheduleModel { LastRelease = lastRelease, Schedules = schedules.Where(s => s.Activated).ToArray() };
 
                 return new OkObjectResult(
                     model
