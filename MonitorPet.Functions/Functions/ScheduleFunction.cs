@@ -40,10 +40,12 @@ namespace MonitorPet.Functions
 
                 await context.OpenConnectionAsync();
                 
-                var lastRelease = await context.DosadorRepository.GetLastRefresh(generatedGuid);
-                
+                var lastRelease = await context.DosadorRepository.GetLastRelease(generatedGuid);
+
                 if (lastRelease is not null)
-                    await context.DosadorRepository.UpdateLastRefresh(generatedGuid, DateTime.UtcNow);
+                    await context.DosadorRepository.UpdateLastRelease(generatedGuid, null);
+
+                await context.DosadorRepository.UpdateLastRefresh(generatedGuid, DateTime.UtcNow);
                 
                 var schedules = await context.ScheduleRepository.GetSchedulesFromDosador(generatedGuid.ToString());
 
