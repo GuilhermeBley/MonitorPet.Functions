@@ -1,17 +1,14 @@
 # MonitorPet.Functions
-Auxilia conexões BD através de protocólos HTTP.
-
-Utiliza Azure Functions
+Connection helper to 'Dosadores'.
 
 ## Post Peso
-
-Adiciona peso para base de dados
+Add weight to database.
 
 ## Get Schedules
+Get 'agendamentos' and make a update in 'dosador' status.
 
-Coleta agendamentos do dosador e realiza atualização de status do dosador
-
+## Send Emails
+Send and check emails about status of each 'dosador'. Email will be sent to each user.
 
 ## Monitor Pet
-
-Projeto conjunto com repositório [https://github.com/GuilhermeBley/MonitorPet].
+[https://github.com/GuilhermeBley/MonitorPet].
