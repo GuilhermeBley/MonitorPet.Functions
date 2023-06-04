@@ -52,7 +52,7 @@ internal class DosadorRepository : IDosadorRepository
             new { UltimaLiberacao = lastReleaseUtc, IdDosador = idDosador });
     }
 
-    public async IAsyncEnumerable<DosadorModel> GetAllAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<DosadorModel> GetAllAsync()
     {
         const int TAKE = 100;
 
