@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
-using MimeKit;
+﻿using MimeKit;
 using MonitorPet.Functions.Model;
 using System.Net;
 using MailKit.Net.Smtp;

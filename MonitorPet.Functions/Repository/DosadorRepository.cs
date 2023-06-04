@@ -54,7 +54,7 @@ internal class DosadorRepository : IDosadorRepository
 
     public async IAsyncEnumerable<DosadorModel> GetAllAsync()
     {
-        const int TAKE = 100;
+        const int TAKE = 10;
 
         const string QUERY = @"
 SELECT 
