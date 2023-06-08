@@ -7,12 +7,10 @@ using System.Threading;
 
 namespace MonitorPet.Functions.Repository;
 
-#nullable enable
-
 internal interface IPesoRepository
 {
     Task Create(Model.WeightDosador model);
-    Task<QueryWeightDosadorModel?> GetLastByIdDosadorOrDefault(string idDosador, CancellationToken cancellationToken = default);
+    Task<QueryWeightDosadorModel> GetLastByIdDosadorOrDefault(string idDosador, CancellationToken cancellationToken = default);
 }
 
 internal class PesoRepository : IPesoRepository
@@ -35,7 +33,7 @@ internal class PesoRepository : IPesoRepository
             );
     }
 
-    public async Task<QueryWeightDosadorModel?> GetLastByIdDosadorOrDefault(Guid idDosador, CancellationToken cancellationToken = default)
+    public async Task<QueryWeightDosadorModel> GetLastByIdDosadorOrDefault(string idDosador, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
