@@ -24,6 +24,6 @@ internal class EmailSentModel : ITableEntity
         EmailType = emailType;
         SentAt = DateTime.UtcNow;
         PartitionKey = $"{EmailAddress}_{EmailType}";
-        PartitionKey = Guid.NewGuid().ToString();
+        RowKey = Guid.NewGuid().ToString();
     }
 }

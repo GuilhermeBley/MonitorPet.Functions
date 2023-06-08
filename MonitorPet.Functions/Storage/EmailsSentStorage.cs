@@ -18,7 +18,7 @@ namespace MonitorPet.Functions.Storage
     internal class EmailsSentStorage : IEmailsSentStorage
     {
         public static readonly TableClient _tableClient 
-            = new(connectionString: AppSettings.TryGetSettings(AppSettings.DEFAULT_MYSQL_CONFIG), tableName: "emailsSent");
+            = new(connectionString: AppSettings.TryGetSettings(AppSettings.DEFAULT_STORAGE_CONFIG), tableName: "emailsSent");
 
         public async Task<EmailSentModel> CreateAsync(EmailSentModel entity, CancellationToken cancellationToken = default)
         {
