@@ -12,6 +12,7 @@ internal class MpContextDb : IDisposable
     public readonly IDosadorRepository DosadorRepository;
     public readonly IPesoRepository PesoRepository;
     public readonly IScheduleRepository ScheduleRepository;
+    public readonly IUserRepository UserRepository;
 
     public MpContextDb(ConnectionFactory connectionFactory)
     {
@@ -20,6 +21,7 @@ internal class MpContextDb : IDisposable
         DosadorRepository = new DosadorRepository(connectionFactory);
         PesoRepository = new PesoRepository(connectionFactory);
         ScheduleRepository = new ScheduleRepository(connectionFactory);
+        UserRepository = new UserRepository(connectionFactory);
     }
 
     public async Task OpenConnectionAsync()

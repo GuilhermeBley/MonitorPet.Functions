@@ -3,12 +3,14 @@ using System.Threading.Tasks;
 using MonitorPet.Functions.Model;
 using MonitorPet.Functions.MySqlConnection;
 using System;
+using System.Threading;
 
 namespace MonitorPet.Functions.Repository;
 
 internal interface IPesoRepository
 {
     Task Create(Model.WeightDosador model);
+    Task<QueryWeightDosadorModel> GetLastByIdDosadorOrDefault(Guid idDosador, CancellationToken cancellationToken = default);
 }
 
 internal class PesoRepository : IPesoRepository
@@ -29,5 +31,23 @@ internal class PesoRepository : IPesoRepository
                 @"INSERT INTO monitorpet.historicopeso (IdDosador, PesoGr, DateAt) VALUES (@IdDosador, @PesoGr, @DateAt);",
                 new { IdDosador = model.IdDosador, PesoGr = model.Weight, DateAt = model.CreateAt }
             );
+    }
+
+    public async Task<QueryWeightDosadorModel> GetLastByIdDosadorOrDefault(Guid idDosador, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var connection = await _connectionFactory.CreateOpenConnection();
+
+        return await connection.QueryFirstOrDefaultAsync<QueryWeightDosadorModel>(
+            @"
+SELECT PesoGr Weight, DateAt DateAtUtc
+FROM monitorpet.historicopeso
+WHERE IdDosador = @IdDosador
+ORDER BY DateAtUtc DESC
+LIMIT 1;
+            ",
+            new { IdDosador = idDosador.ToString() }
+        );
     }
 }
