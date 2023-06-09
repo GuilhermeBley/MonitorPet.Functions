@@ -48,7 +48,7 @@ namespace MonitorPet.Functions.Functions
 
             foreach (var user in await contextDb.UserRepository.GetByDosador(dosador.IdDosador))
             {
-                var sents = await emailStorage.GetBySentDateAsync(user.Email, DateTime.UtcNow.AddDays(-1));
+                var sents = await emailStorage.GetBySentDateAsync(user.Email, EMAIL_TYPE, DateTime.UtcNow.AddDays(-1));
 
                 if (sents.Any(s => s.EmailType == EMAIL_TYPE))
                     continue;
@@ -56,6 +56,8 @@ namespace MonitorPet.Functions.Functions
                 await emailStorage.CreateAsync(
                     new EmailSentModel(user.Email, EMAIL_TYPE)
                 );
+
+                await Email.EmailTemplate.SendEmailSemRacaoAsync(dosador, user);
 
                 log.LogInformation($"Pet '{dosador.IdDosador}' - E-mail 'sem_alimento' send to '{user.Email}'.");
             }
@@ -69,7 +71,7 @@ namespace MonitorPet.Functions.Functions
 
             foreach (var user in await contextDb.UserRepository.GetByDosador(dosador.IdDosador))
             {
-                var sents = await emailStorage.GetBySentDateAsync(user.Email, DateTime.UtcNow.AddDays(-1));
+                var sents = await emailStorage.GetBySentDateAsync(user.Email, EMAIL_TYPE, DateTime.UtcNow.AddDays(-1));
 
                 if (sents.Any(s => s.EmailType == EMAIL_TYPE))
                     continue;
@@ -77,6 +79,8 @@ namespace MonitorPet.Functions.Functions
                 await emailStorage.CreateAsync(
                     new EmailSentModel(user.Email, EMAIL_TYPE)
                 );
+
+                await Email.EmailTemplate.SendEmailOffline(dosador, user);
 
                 log.LogInformation($"Pet '{dosador.IdDosador}' - E-mail 'offline_pet' send to '{user.Email}'.");
             }

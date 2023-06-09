@@ -12,7 +12,7 @@ namespace MonitorPet.Functions.Storage
     internal interface IEmailsSentStorage
     {
         Task<EmailSentModel> CreateAsync(EmailSentModel entity, CancellationToken cancellationToken = default);
-        Task<IEnumerable<EmailSentModel>> GetBySentDateAsync(string email, DateTime date, CancellationToken cancellationToken = default);
+        Task<IEnumerable<EmailSentModel>> GetBySentDateAsync(string email, string emailType, DateTime date, CancellationToken cancellationToken = default);
     }
 
     internal class EmailsSentStorage : IEmailsSentStorage
@@ -26,12 +26,12 @@ namespace MonitorPet.Functions.Storage
             return entity;
         }
 
-        public async Task<IEnumerable<EmailSentModel>> GetBySentDateAsync(string email, DateTime date, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<EmailSentModel>> GetBySentDateAsync(string email, string emailType, DateTime date, CancellationToken cancellationToken = default)
         {
             List<EmailSentModel> entities = new();
 
             await foreach(var entity in _tableClient.QueryAsync<EmailSentModel>(
-                (e) => e.SentAt > date && e.EmailAddress == email,
+                (e) => e.SentAt > date && e.EmailAddress == email && e.EmailType == emailType,
                 cancellationToken: cancellationToken))
             {
                 entities.Add(entity);
