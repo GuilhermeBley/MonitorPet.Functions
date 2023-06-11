@@ -46,7 +46,8 @@ namespace MonitorPet.Functions.Functions
 
             var emailStorage = new EmailsSentStorage();
 
-            foreach (var user in await contextDb.UserRepository.GetByDosador(dosador.IdDosador))
+            foreach (var user in (await contextDb.UserRepository.GetByDosador(dosador.IdDosador))
+                .Where(u => u.EmailType.ToLowerInvariant() == EMAIL_TYPE))
             {
                 var sents = await emailStorage.GetBySentDateAsync(user.Email, EMAIL_TYPE, DateTime.UtcNow.AddDays(-1));
 
@@ -69,7 +70,8 @@ namespace MonitorPet.Functions.Functions
 
             var emailStorage = new EmailsSentStorage();
 
-            foreach (var user in await contextDb.UserRepository.GetByDosador(dosador.IdDosador))
+            foreach (var user in (await contextDb.UserRepository.GetByDosador(dosador.IdDosador))
+                .Where(u => u.EmailType.ToLowerInvariant() == EMAIL_TYPE))
             {
                 var sents = await emailStorage.GetBySentDateAsync(user.Email, EMAIL_TYPE, DateTime.UtcNow.AddDays(-1));
 
