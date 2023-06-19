@@ -57,6 +57,9 @@ namespace MonitorPet.Functions
             if (modelWeightDosador is null)
                 return null;
 
+            if (modelWeightDosador.Weight < 0)
+                modelWeightDosador.Weight = 0;
+
             modelWeightDosador.CreateAt = System.DateTime.UtcNow;
 
             return modelWeightDosador;
